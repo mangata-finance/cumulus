@@ -15,7 +15,7 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install ${{ env.TOOLCHAIN }}
         uses: actions-rs/toolchain@v1
         with:
@@ -32,7 +32,7 @@ jobs:
   build:
     runs-on: cumulus-repo-worker
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
@@ -53,7 +53,7 @@ jobs:
   test:
     runs-on: cumulus-repo-worker
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
