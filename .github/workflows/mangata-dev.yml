@@ -67,4 +67,4 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           toolchain: ${{ env.TOOLCHAIN }}
-          command: test -j2
+          command: cargo test -j2
