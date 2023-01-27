@@ -50,7 +50,7 @@ jobs:
           args: --release
 
   test:
-    runs-on: cumulus-repo-worker-2004
+    runs-on: cumulus-repo-test-job-workers
     steps:
       - uses: actions/checkout@v3
       - name: Install Protoc
