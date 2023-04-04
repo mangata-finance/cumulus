@@ -770,7 +770,7 @@ mod tests {
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 
 			let incoming = vec![msg(1002), msg(1003)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 5000));
 			assert_eq!(weight_used, Weight::zero());
 			assert_eq!(take_trace(), vec![]);
 			assert_eq!(pages_queued(), 1);
@@ -778,7 +778,7 @@ mod tests {
 			let enqueued = vec![msg(1000), msg(1001)];
 			let incoming = vec![msg(1004), msg(1005)];
 			enqueue(&enqueued);
-			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 5000));
 			assert_eq!(weight_used, Weight::zero());
 			assert_eq!(take_trace(), vec![]);
 			assert_eq!(pages_queued(), 3);
@@ -786,8 +786,8 @@ mod tests {
 			MockMaintenanceStatusProvider::set_maintenance_status(false, false);
 
 			let incoming = vec![msg(1006), msg(1007)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 0));
-			assert_eq!(weight_used, Weight::from_parts(2005, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 2500));
+			assert_eq!(weight_used, Weight::from_parts(2005, 2005));
 			assert_eq!(
 				take_trace(),
 				vec![msg_complete(1002), msg_complete(1003), msg_limit_reached(1000)]
@@ -795,8 +795,8 @@ mod tests {
 			assert_eq!(pages_queued(), 3);
 
 			let incoming = vec![msg(1008), msg(1009)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(10000, 0));
-			assert_eq!(weight_used, Weight::from_parts(8040, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(10000, 10000));
+			assert_eq!(weight_used, Weight::from_parts(8040, 8040));
 			assert_eq!(
 				take_trace(),
 				vec![
@@ -820,10 +820,10 @@ mod tests {
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 
 			// Set the overweight threshold to 9999.
-			Configuration::<Test>::put(ConfigData { max_individual: Weight::from_parts(9999, 0) });
+			Configuration::<Test>::put(ConfigData { max_individual: Weight::from_parts(9999, 9999) });
 
 			let incoming = vec![msg(1002), msg(10003)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 5000));
 			assert_eq!(weight_used, Weight::zero());
 			assert_eq!(take_trace(), vec![]);
 			assert_eq!(pages_queued(), 1);
@@ -831,7 +831,7 @@ mod tests {
 			let enqueued = vec![msg(1000), msg(1001)];
 			let incoming = vec![msg(1004), msg(1005)];
 			enqueue(&enqueued);
-			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(5000, 5000));
 			assert_eq!(weight_used, Weight::zero());
 			assert_eq!(take_trace(), vec![]);
 			assert_eq!(pages_queued(), 3);
@@ -839,8 +839,8 @@ mod tests {
 			MockMaintenanceStatusProvider::set_maintenance_status(false, false);
 
 			let incoming = vec![msg(1006), msg(1007)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 0));
-			assert_eq!(weight_used, Weight::from_parts(2002, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 2500));
+			assert_eq!(weight_used, Weight::from_parts(2002, 2002));
 			assert_eq!(
 				take_trace(),
 				vec![
@@ -854,8 +854,8 @@ mod tests {
 			assert_eq!(overweights(), vec![0]);
 
 			let incoming = vec![msg(1008), msg(1009)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(10000, 0));
-			assert_eq!(weight_used, Weight::from_parts(7040, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(10000, 10000));
+			assert_eq!(weight_used, Weight::from_parts(7040, 7040));
 			assert_eq!(
 				take_trace(),
 				vec![
@@ -1066,24 +1066,24 @@ mod tests {
 	fn overweights_should_not_be_manually_executable_during_maintenance_mode() {
 		new_test_ext().execute_with(|| {
 			// Set the overweight threshold to 9999.
-			Configuration::<Test>::put(ConfigData { max_individual: Weight::from_parts(9999, 0) });
+			Configuration::<Test>::put(ConfigData { max_individual: Weight::from_parts(9999, 9999) });
 
 			let incoming = vec![msg(10000)];
-			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 0));
+			let weight_used = handle_messages(&incoming, Weight::from_parts(2500, 2500));
 			assert_eq!(weight_used, Weight::zero());
 			assert_eq!(take_trace(), vec![msg_limit_reached(10000)]);
 			assert_eq!(overweights(), vec![0]);
 
 			assert_noop!(
-				DmpQueue::service_overweight(RuntimeOrigin::signed(1), 0, Weight::from_parts(20000, 0)),
+				DmpQueue::service_overweight(RuntimeOrigin::signed(1), 0, Weight::from_parts(20000, 20000)),
 				BadOrigin
 			);
 			assert_noop!(
-				DmpQueue::service_overweight(RuntimeOrigin::root(), 1, Weight::from_parts(20000, 0)),
+				DmpQueue::service_overweight(RuntimeOrigin::root(), 1, Weight::from_parts(20000, 20000)),
 				Error::<Test>::Unknown
 			);
 			assert_noop!(
-				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(9999, 0)),
+				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(9999, 9999)),
 				Error::<Test>::OverLimit
 			);
 			assert_eq!(take_trace(), vec![msg_limit_reached(10000)]);
@@ -1091,7 +1091,7 @@ mod tests {
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 
 			assert_noop!(
-				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 0)),
+				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 20000)),
 				Error::<Test>::DmpMsgProcessingBlockedByMaintenanceMode
 			);
 
@@ -1101,14 +1101,14 @@ mod tests {
 				.get_dispatch_info()
 				.weight;
 			use frame_support::dispatch::GetDispatchInfo;
-			let info = DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 0)).unwrap();
+			let info = DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 20000)).unwrap();
 			let actual_weight = info.actual_weight.unwrap();
-			assert_eq!(actual_weight, base_weight + Weight::from_parts(10000, 0));
+			assert_eq!(actual_weight, base_weight + Weight::from_parts(10000, 10000));
 			assert_eq!(take_trace(), vec![msg_complete(10000)]);
 			assert!(overweights().is_empty());
 
 			assert_noop!(
-				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 0)),
+				DmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(20000, 20000)),
 				Error::<Test>::Unknown
 			);
 		});
