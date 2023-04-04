@@ -549,13 +549,13 @@ fn authorize_upgrade_maintenance_mode() {
 		.add(123, || {
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 			assert_err!(
-				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default()),
+				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default(), false),
 				Error::<Test>::UpgradeBlockedByMaintenanceMode
 			);
 		})
 		.add(150, || {
 			assert_err!(
-				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default()),
+				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default(), false),
 				Error::<Test>::UpgradeBlockedByMaintenanceMode
 			);
 		})
@@ -565,7 +565,8 @@ fn authorize_upgrade_maintenance_mode() {
 				MockMaintenanceStatusProvider::set_maintenance_status(true, true);
 				assert_ok!(ParachainSystem::authorize_upgrade(
 					RawOrigin::Root.into(),
-					Default::default()
+					Default::default(),
+					false
 				));
 			},
 			|| {
@@ -590,7 +591,8 @@ fn enact_authorized_upgrade_maintenance_mode() {
 		.add(123, || {
 			assert_ok!(ParachainSystem::authorize_upgrade(
 				RawOrigin::Root.into(),
-				Default::default()
+				Default::default(),
+				false
 			));
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 		})
@@ -625,7 +627,7 @@ fn scheduled_upgrade_fails_maintenance_mode_no_upgradability() {
 	BlockTests::new()
 		.with_relay_sproof_builder(|_, block_number, builder| {
 			if block_number > 123 {
-				builder.upgrade_go_ahead = Some(relay_chain::v2::UpgradeGoAhead::GoAhead);
+				builder.upgrade_go_ahead = Some(relay_chain::UpgradeGoAhead::GoAhead);
 			}
 		})
 		.add_with_post_test(
@@ -661,7 +663,7 @@ fn scheduled_upgrade_works_maintenance_mode_reenabling_upgradability() {
 	BlockTests::new()
 		.with_relay_sproof_builder(|_, block_number, builder| {
 			if block_number > 123 {
-				builder.upgrade_go_ahead = Some(relay_chain::v2::UpgradeGoAhead::GoAhead);
+				builder.upgrade_go_ahead = Some(relay_chain::UpgradeGoAhead::GoAhead);
 			}
 		})
 		.add_with_post_test(
@@ -702,7 +704,7 @@ fn scheduled_upgrade_works_disabling_maintenance_mode() {
 	BlockTests::new()
 		.with_relay_sproof_builder(|_, block_number, builder| {
 			if block_number > 123 {
-				builder.upgrade_go_ahead = Some(relay_chain::v2::UpgradeGoAhead::GoAhead);
+				builder.upgrade_go_ahead = Some(relay_chain::UpgradeGoAhead::GoAhead);
 			}
 		})
 		.add_with_post_test(

@@ -112,7 +112,7 @@ fn service_overweight_does_not_work_in_maintenance_mode() {
 	new_test_ext().execute_with(|| {
 		MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 		assert_noop!(
-			XcmpQueue::service_overweight(RuntimeOrigin::root(), 0, 1000),
+			XcmpQueue::service_overweight(RuntimeOrigin::root(), 0, Weight::from_parts(1000, 0)),
 			Error::<Test>::XcmMsgProcessingBlockedByMaintenanceMode,
 		);
 	});
@@ -173,7 +173,7 @@ fn service_xcmp_queue_does_not_work_in_maintenance_mode() {
 
 		// This should have executed the incoming XCM, because it came from a system parachain
 		let weight_used = XcmpQueue::handle_xcmp_messages(messages.into_iter(), Weight::MAX);
-		assert_eq!(weight_used, Weight::from_ref_time(0));
+		assert_eq!(weight_used, Weight::zero());
 
 		let queued_xcm = InboundXcmpMessages::<Test>::get(ParaId::from(999), 1u32);
 		assert_eq!(queued_xcm, xcm);
@@ -182,7 +182,7 @@ fn service_xcmp_queue_does_not_work_in_maintenance_mode() {
 
 		// This shouldn't have executed the incoming XCM
 		let weight_used = XcmpQueue::handle_xcmp_messages(messages.into_iter(), Weight::MAX);
-		assert_eq!(weight_used, Weight::from_ref_time(0));
+		assert_eq!(weight_used, Weight::zero());
 
 		let queued_xcm = InboundXcmpMessages::<Test>::get(ParaId::from(2000), 1u32);
 		assert_eq!(queued_xcm, xcm);
@@ -203,7 +203,7 @@ fn on_idle_should_not_service_queue_in_maintenance_mode() {
 
 		// This should have executed the incoming XCM, because it came from a system parachain
 		let weight_used = XcmpQueue::handle_xcmp_messages(messages.into_iter(), Weight::MAX);
-		assert_eq!(weight_used, Weight::from_ref_time(0));
+		assert_eq!(weight_used, Weight::zero());
 
 		let queued_xcm = InboundXcmpMessages::<Test>::get(ParaId::from(999), 1u32);
 		assert_eq!(queued_xcm, xcm);
@@ -212,13 +212,13 @@ fn on_idle_should_not_service_queue_in_maintenance_mode() {
 
 		// This shouldn't have executed the incoming XCM
 		let weight_used = XcmpQueue::handle_xcmp_messages(messages.into_iter(), Weight::MAX);
-		assert_eq!(weight_used, Weight::from_ref_time(0));
+		assert_eq!(weight_used, Weight::zero());
 
 		let queued_xcm = InboundXcmpMessages::<Test>::get(ParaId::from(2000), 1u32);
 		assert_eq!(queued_xcm, xcm);
 
 		let weight_used = XcmpQueue::on_idle(1, Weight::from_ref_time(6000));
-		assert_eq!(weight_used, Weight::from_ref_time(0));
+		assert_eq!(weight_used, Weight::zero());
 
 		let queued_xcm = InboundXcmpMessages::<Test>::get(ParaId::from(999), 1u32);
 		assert_eq!(queued_xcm, xcm);

@@ -43,11 +43,11 @@ use cumulus_primitives_core::{
 	relay_chain::BlockNumber as RelayBlockNumber, ChannelStatus, GetChannelInfo, MessageSendError,
 	ParaId, XcmpMessageFormat, XcmpMessageHandler, XcmpMessageSource,
 };
-use mangata_support::traits::GetMaintenanceStatusTrait;
 use frame_support::{
 	traits::{EnsureOrigin, Get},
 	weights::{constants::WEIGHT_REF_TIME_PER_MILLIS, Weight},
 };
+use mangata_support::traits::GetMaintenanceStatusTrait;
 use polkadot_runtime_common::xcm_sender::ConstantPrice;
 use rand_chacha::{
 	rand_core::{RngCore, SeedableRng},

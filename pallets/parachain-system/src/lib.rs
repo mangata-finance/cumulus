@@ -494,7 +494,6 @@ pub mod pallet {
 				Error::<T>::UpgradeBlockedByMaintenanceMode
 			);
 
-
 			AuthorizedUpgrade::<T>::put(CodeUpgradeAuthorization {
 				code_hash: code_hash.clone(),
 				check_version,
