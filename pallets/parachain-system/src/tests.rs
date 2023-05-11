@@ -549,13 +549,21 @@ fn authorize_upgrade_maintenance_mode() {
 		.add(123, || {
 			MockMaintenanceStatusProvider::set_maintenance_status(true, false);
 			assert_err!(
-				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default(), false),
+				ParachainSystem::authorize_upgrade(
+					RawOrigin::Root.into(),
+					Default::default(),
+					false
+				),
 				Error::<Test>::UpgradeBlockedByMaintenanceMode
 			);
 		})
 		.add(150, || {
 			assert_err!(
-				ParachainSystem::authorize_upgrade(RawOrigin::Root.into(), Default::default(), false),
+				ParachainSystem::authorize_upgrade(
+					RawOrigin::Root.into(),
+					Default::default(),
+					false
+				),
 				Error::<Test>::UpgradeBlockedByMaintenanceMode
 			);
 		})
